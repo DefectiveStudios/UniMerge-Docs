@@ -2,6 +2,7 @@
 UniMerge can be [purchased](http://u3d.as/4XU) from the Unity Asset Store for only $15!
 
 # Author
+
 [Matt Schoen](mailto:schoen@defectivestudios.com) of [Defective Studios](http://www.defectivestudios.com)
 
 ## Intro
@@ -45,7 +46,7 @@ So what’s going on here?? I’ll break it down:
 
 ## Pro Tips
 * You can pull up any scene or prefab from any state by using TortoiseGit’s Repo Browser.  Open the log, find the commit you want, right click it and choose Repo Browser.  Then find the file you want, and Save as... to the assets folder. Then merge! Good Luck!
-* The conflict check (red/green background) compares all components, fields, and child objects, but the part of the code that checks if children are “the same” only compares names.  The difference here is that in cases where an object on the left is not matched on the right, only names are considered.  There is no “history” to tell us whether two copies of a object used to be the same thing, so this is the best we can come up with so far.  Bear in mind that re-naming sub-objects will cause them to be treated as “unmatched” in this way.
+* The conflict check (red/green background) compares all components, fields, and child objects, but the part of the code that checks if children are "the same" only compares names.  The difference here is that in cases where an object on the left is not matched on the right, only names are considered.  There is no "history" to tell us whether two copies of a object used to be the same thing, so this is the best we can come up with so far.  Bear in mind that re-naming sub-objects will cause them to be treated as "unmatched" in this way.
 * Don’t forget to use the normal Unity editor!  You can take advantage of multi-edit and other editor scripts you’ve devised and the rest, once you’ve found the differences with this window.  Sometimes it’s much easier to do things conventionally :)
 * Make use of the alt-click and Expand Differences functionality.  Don't sit there folding out each object one-by-one when you can expand/collapse all by holding alt, and selectively expand to differences with the Expand Differences button.
 * Be careful using the tool on large, complex scenes (more than a few thousand objects).  The tool will process in the background, but can still take a long time (over a minute) to refresh the comparison state of each object.  Break your scene up into chunks.  If you do decide to take the plunge and work on the whole thing at once, the comparison will run faster if you collapse the GUI down to showing just the top row.
@@ -73,7 +74,7 @@ If you are red/green colorblind, just go ahead and drop some alternate colors in
 ## VCS/SCM Integration
 Note that certain example paths below need to be changed based on your folder structure.  Also, the Windows merge-unity.vbs has a hard-coded path for Unity, which you might have to modify for your system.  Also, the script will assume that it's in the project folder for the project you want to work with, if you need to point to a different project, there is a commented line which will help you.
 
-Unity has [http://docs.unity3d.com/Manual/SmartMerge.html some good instructions] for a variety of VCS systems and their YAMLMerge tool.  For the record, this is another valid strategy if you want to deal with text files. I find that in the case of particularly messy merges, doing a YAML merge first can help make the input to UniMerge much more helpful.
+Unity has [some good instructions](http://docs.unity3d.com/Manual/SmartMerge.html) for a variety of VCS systems and their YAMLMerge tool.  For the record, this is another valid strategy if you want to deal with text files. I find that in the case of particularly messy merges, doing a YAML merge first can help make the input to UniMerge much more helpful.
 
 ### Regular Old Git
 This is where it gets a bit complicated.  This was my first experience putting a custom merge driver into gitconfig, so if I’m doing it wrong, I won’t be surprised.  From what I can tell, there are two files you have to modify.  Note that this example would be a Windows set-up, calling the .vbs script with wscript.  Refer to the section below about OS X, and simply swap out the driver command below.  Add the following lines to the following files:
@@ -122,7 +123,7 @@ Right now, the script doesn't clean up after itself since I don’t want it to b
 Not sure if there’s an automated way of setting up this process.  In lieu of tortoisegit, setting up a mergetool has always been kind of the bane of my git existence.  It’s pretty obscure and nobody seems to want to help you do it =/
 
 ### OS X and Git
-superprat has been kind enough to create a [https://github.com/superprat/unimergemacdriver](github project) for git integration on OS X.  His readme should explain how to set it up.
+superprat has been kind enough to create a  [github project](https://github.com/superprat/unimergemacdriver) for git integration on OS X.  His readme should explain how to set it up.
 The merge-unity.sh script has been included in the latest version of the package.
 
 ### PlasticSCM on Windows
@@ -143,7 +144,7 @@ $LOCAL $REMOTE
 ```
 as the arguments.
 
-However, this means that unimerge will be used as the merge/diff tool for ALL file types. It seems that setting up SourceTree to specify a merge tool for specific filetypes is an [https://jira.atlassian.com/browse/SRCTREEWIN-487 open issue].  The suggestion about a shell script which processes the filetype and redirects commands to different merge tools is a valid one, but a project that I haven't taken on yet.
+However, this means that unimerge will be used as the merge/diff tool for ALL file types. It seems that setting up SourceTree to specify a merge tool for specific filetypes is an [open issue](https://jira.atlassian.com/browse/SRCTREEWIN-487).  The suggestion about a shell script which processes the filetype and redirects commands to different merge tools is a valid one, but a project that I haven't taken on yet.
 ### Other VCS Integration
 Integrating this tool into other VCS solutions should be very straightforward.  I'm not sure exactly how other systems specify mergetool overrides, but regardless you should be able to point them at a path which will open the bridge script.  We could either create a specific bridge for each VCS, or merge them all into a single script which would auto-detect which software was calling it.  Contact me if you want help setting up your VCS with the ObjectMerger.  Or, if you’ve figured it out already, I'd greatly appreciate it if you shared your bridge script and some instructions so that other users of your VCS don’t have to re-invent the wheel.
 
@@ -196,13 +197,13 @@ What’s next?
 * Merging lists of objects
     * Currently, for the purposes of merging two parallel lists of children, only object names are compared.  For example, we have one object with Child 1, Child 2, and Child 3, and another with Child 2, Child 3, and Child 4.  As it stands, we’ll see a list with 4 items.  Since there is no child named Child 1 it will be alone on the left, and likewise Child 4 will be alone on the right.  It might be appropriate to merge the list differently, and we’d be able to make a better decision with information about the object’s history.  Anyway this is an area for improvement, but I have no idea what would be better.
 * "Smarter" merging/merge options
-    * Currently the “merge” buttons in the middle will simply copy the object over wholesale.  As a first step in the direction of “smart” merging, the tool will try to maintain references to the object and its children and components, but there could be other merge strategies that could avoid overwriting other objects, or something like that.
+    * Currently the "merge" buttons in the middle will simply copy the object over wholesale.  As a first step in the direction of "smart" merging, the tool will try to maintain references to the object and its children and components, but there could be other merge strategies that could avoid overwriting other objects, or something like that.
 * Skinning/GUI
     * The GUI is rather simple as-is but is still pretty busy.  I’m constantly thinking about ways to improve it.
 * Refresh behavior
     * When changes are made, I avoid refreshing from the root for two reasons: firstly, for very complicated objects, refresh can take a few seconds.  Secondly, the current refresh function will re-create the holder objects that store whether a row is collapsed or open.  If I refreshed the whole tree on every action, you would have to keep re-opening the tree to where you were.  Likewise, whenever changes are made in the scene, you have to manually refresh the row in the merge window.  Eventually, I’d like to be able to do away with the refresh button altogether, and auto-refresh whenever is needed.
 * Documentation
-    * I hope to add some more screencasts and better screenshots of tool in action.  The [https://www.youtube.com/watch?v=SWmca1Ozntw](demo screencast) is a good start, though!
+    * I hope to add some more screencasts and better screenshots of tool in action.  The [demo screencast](https://www.youtube.com/watch?v=SWmca1Ozntw) is a good start, though!
 * Code cleanup
     * Refresh and FindAndSetRefs are O(n^2).  I might be able to make this faster
     * I probably could do one last pass with the interest of supporting a three-way merge

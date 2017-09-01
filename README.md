@@ -29,7 +29,7 @@ That’s it!  Now you’ll see the interface in all its glory. If your objects a
 
 So what’s going on here?? I’ll break it down:
 <img src="https://github.com/DefectiveStudios/UniMerge-Docs/raw/master/breakdown.png" width=400 align=right />
-1. **Options**: _Deep Copy_ will set references to objects you just copied in the object it was copied to.  Disable this if you don't want this behavior or if copying a large, complex object crashes Unity (sorry about that).  _Log_ will enable logging on certain operations.  _Compare Attributes_ will enable the inclusion of GameObject attributes (name, layer, tag, etc.) in the comparison algorithm.  _Expand Differences_ will open up any objects (and their parents) that have differences.
+1. **Options**: _Deep Copy_ will set references to objects you just copied in the object it was copied to.  Disable this if you don't want this behavior or if copying a large, complex object crashes Unity (sorry about that).  _Log_ will enable logging on certain operations.  _Compare Attributes_ will enable the inclusion of GameObject attributes (name, layer, tag, etc.) in the comparison algorithm.  _Expand Differences_ will open up any objects (and their parents) that have differences.  _Refresh_ will refresh the whole tree, comparing every object and attribute, resetting the row color.  Use this if anything seems fish or out of date, or if you make changes to the objects outside of the ObjectMerge window which can't be tracked.  _Row Height_ is pretty self-explanitory. Pick from one or three levels of padding between rows.
 2. **Filters**: The drop-downs on the right will list every component type available in your project.  Use them like you use the layer mask GUI on lights and cameras to include/exclude component types from the comparison.  Those components will still show up red if there are differences, but they won't be checked in their parent object.  All three lists are checked simultaneously, and have to be broken up because Unity's mask GUI can only handle 31 items at a time.
 3. **Root object slots**:  Drop your root objects here.  Once you fill both, the merge interface will magically appear!  Use the clear button if you want to get rid of the interface (for some reason).  The object picker breaks because we’re using a GUISkin for the window.  The _PrefabInstance_ you see below the object field tells you the prefab state of the object (this one happens to have no prefab).
 4. **Foldouts**: GameObjects, Components, and some properties will be listed with a little arrow next to them.  As with everywhere else in the Unity interface, this arrow expands the contents below.  Note that all foldouts here are tied to both sides at once.  This is intentional in order to keep the layout sane and make it so that blank space means the object is actually missing.  Holding alt while clicking on a GameObject foldout will expand/collapse all of its children with it.
@@ -40,7 +40,7 @@ So what’s going on here?? I’ll break it down:
     * These arrows copy data between properties.  Only the value at this row is copied.
     * Sometimes, when one side is missing, you’ll get an X on the side that has the object.  This will delete that object (or component), thus making that row the same by eliminating it.
     * Sometimes you won’t see buttons. This is because the opposite object is missing entirely (not just missing that component).  You will also get this for any properties of a missing component. You need to copy the component over to get those properties--you can’t copy them into nothing.
-7. **Show/Hide and Reset**: The column on the right has two buttons that affect the entire row (not just one object). To differentiate between children and components, components are shown/hidden by a button instead of the foldout. There is a gap after the components to show you where they end and the children begin.  The _R_ Button will reset the row, which will re-do the comparison and update for any changes made outside of the window.  Note that this will clear the foldout state for all children.  Eventually, the window will always refresh itself, but because of this child closing behaviors, some resets are avoided to keep the interface from disappearing when you make a change.
+7. **Show/Hide**: The column on the right has two buttons that affect the entire row (not just one object). To differentiate between children and components, components are shown/hidden by a button instead of the foldout. There is a gap after the components to show you where they end and the children begin.
 8. **Mismatched row**: If an object or component doesn't have a spouse (matching object on the other side), you will get an _X_ button on the side where it exists.  This button will destroy the object or component, thus making that row "equal" by getting rid of it.  You will not get copy buttons when showing components of a mismatched object.  You must first copy the object over to copy the components.  Note that you'll see empty space on the side without the object.
 
 ## Pro Tips
@@ -49,6 +49,7 @@ So what’s going on here?? I’ll break it down:
 * Don’t forget to use the normal Unity editor!  You can take advantage of multi-edit and other editor scripts you’ve devised and the rest, once you’ve found the differences with this window.  Sometimes it’s much easier to do things conventionally :)
 * Make use of the alt-click and Expand Differences functionality.  Don't sit there folding out each object one-by-one when you can expand/collapse all by holding alt, and selectively expand to differences with the Expand Differences button.
 * Be careful using the tool on large, complex scenes (more than a few thousand objects).  The tool will process in the background, but can still take a long time (over a minute) to refresh the comparison state of each object.  Break your scene up into chunks.  If you do decide to take the plunge and work on the whole thing at once, the comparison will run faster if you collapse the GUI down to showing just the top row.
+* In Unity 5.3 and above, UniMerge makes use of the Unity SceneManager class.  Make sure that you don't have your own class called SceneManager, as it conflicts with the Unity class and will call compile errors when importing UniMerge.
 
 ## Scene Merging
 
@@ -70,10 +71,12 @@ Generally speaking, you shouldn’t have to touch this window.  Everything here 
 If you are red/green colorblind, just go ahead and drop some alternate colors into these textures.  You can either create a new set of 8 images, or edit the images themselves directly. If anyone comes up with some good alternate color schemes, I’d be happy to include them and a drop-down to switch between pre-made schemes.
 
 ## VCS/SCM Integration
-Note that certain example paths below need to be changed based on your folder structure.  Also, the Windows merge-unity.vbs script assumes Unity is installed on the C drive in the default location.  If you want it to point to a specific version of Unity, or if you have installed Unity somewhere other than the default, _you will have to modify merge-unity.vbs_.
+Note that certain example paths below need to be changed based on your folder structure.  Also, the Windows merge-unity.vbs has a hard-coded path for Unity, which you might have to modify for your system.  Also, the script will assume that it's in the project folder for the project you want to work with, if you need to point to a different project, there is a commented line which will help you.
 
-### Git for Windows
-This is where it gets a bit complicated.  This was my first experience putting a custom merge driver into gitconfig, so if I’m doing it wrong, I won’t be surprised.  From what I can tell, there are two files you have to modify.  Add the following lines to the following files:
+Unity has [http://docs.unity3d.com/Manual/SmartMerge.html some good instructions] for a variety of VCS systems and their YAMLMerge tool.  For the record, this is another valid strategy if you want to deal with text files. I find that in the case of particularly messy merges, doing a YAML merge first can help make the input to UniMerge much more helpful.
+
+### Regular Old Git
+This is where it gets a bit complicated.  This was my first experience putting a custom merge driver into gitconfig, so if I’m doing it wrong, I won’t be surprised.  From what I can tell, there are two files you have to modify.  Note that this example would be a Windows set-up, calling the .vbs script with wscript.  Refer to the section below about OS X, and simply swap out the driver command below.  Add the following lines to the following files:
 
 * <Git_Install_Path>/etc/gitconfig
 ```
@@ -119,7 +122,7 @@ Right now, the script doesn't clean up after itself since I don’t want it to b
 Not sure if there’s an automated way of setting up this process.  In lieu of tortoisegit, setting up a mergetool has always been kind of the bane of my git existence.  It’s pretty obscure and nobody seems to want to help you do it =/
 
 ### OS X and Git
-superprat has been kind enough to create a [https://github.com/superprat/unimergemacdriver github project] for an git integration on OS X.  His readme should explain how to set it up.
+superprat has been kind enough to create a [https://github.com/superprat/unimergemacdriver](github project) for git integration on OS X.  His readme should explain how to set it up.
 The merge-unity.sh script has been included in the latest version of the package.
 
 ### PlasticSCM on Windows
@@ -129,6 +132,18 @@ Just like with TortoiseGit, you want to have Plastic run the merge-unity.js scri
 
 Make sure you swap out D:\Documents\CosmoKnots\CosmoKnots\ with the path to your Unity project folder.  Note that the script no longer uses relative paths, so you can put it wherever you want.  You do, however, now have to go change the ProjectBase value to the path of your project folder.
 
+### SourceTree
+Atlassain SourceTree is becoming a popular git frontend for both OS X and Windows.  To configure SourceTree to use UniMerge as a diff tool, you can simply switch the diff and merge tool to "Other", and specify 
+```
+wscript.exe "D:\Documents\CosmoKnots\CosmoKnots\merge-unity.vbs"
+```
+as the command, and 
+```
+$LOCAL $REMOTE
+```
+as the arguments.
+
+However, this means that unimerge will be used as the merge/diff tool for ALL file types. It seems that setting up SourceTree to specify a merge tool for specific filetypes is an [https://jira.atlassian.com/browse/SRCTREEWIN-487 open issue].  The suggestion about a shell script which processes the filetype and redirects commands to different merge tools is a valid one, but a project that I haven't taken on yet.
 ### Other VCS Integration
 Integrating this tool into other VCS solutions should be very straightforward.  I'm not sure exactly how other systems specify mergetool overrides, but regardless you should be able to point them at a path which will open the bridge script.  We could either create a specific bridge for each VCS, or merge them all into a single script which would auto-detect which software was calling it.  Contact me if you want help setting up your VCS with the ObjectMerger.  Or, if you’ve figured it out already, I'd greatly appreciate it if you shared your bridge script and some instructions so that other users of your VCS don’t have to re-invent the wheel.
 
@@ -187,7 +202,7 @@ What’s next?
 * Refresh behavior
     * When changes are made, I avoid refreshing from the root for two reasons: firstly, for very complicated objects, refresh can take a few seconds.  Secondly, the current refresh function will re-create the holder objects that store whether a row is collapsed or open.  If I refreshed the whole tree on every action, you would have to keep re-opening the tree to where you were.  Likewise, whenever changes are made in the scene, you have to manually refresh the row in the merge window.  Eventually, I’d like to be able to do away with the refresh button altogether, and auto-refresh whenever is needed.
 * Documentation
-    * I hope to add some more screencasts and better screenshots of tool in action.  The [https://www.youtube.com/watch?v=SWmca1Ozntw demo screencast] is a good start, though!
+    * I hope to add some more screencasts and better screenshots of tool in action.  The [https://www.youtube.com/watch?v=SWmca1Ozntw](demo screencast) is a good start, though!
 * Code cleanup
     * Refresh and FindAndSetRefs are O(n^2).  I might be able to make this faster
     * I probably could do one last pass with the interest of supporting a three-way merge

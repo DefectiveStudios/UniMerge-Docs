@@ -59,12 +59,13 @@ Scene merging is pretty simple, too.  It also has a very similar workflow!  Simp
 1. Open the SceneMerge Window (Window -> Object Merge ->Scene Merge)
 2. Drag in your scenes
 3. Press the Merge button
-4. Do your merge in the ObjectMerge window
-5. Click _Save / As Theirs/Mine_ to save either generated object to an existing or new scene file
+4. Merge your objects in the ObjectMerge window
+5. Merge scene settings in the SceneMerge window
+6. Click _Save / As Theirs/Mine_ to save either generated object to an existing or new scene file
 
 You should be back where you started, with a merged scene :)
 
-Note that you need to merge dependencies (a.k.a. prefabs) first.  If you try to merge a scene with prefabs containing version control mockup, Unity will spam the log with warnings, and the merge grinds to a halt.  In version 1.6 and above, UniMerge will abort the merge and warn you about this problem.
+Note that you need to merge dependencies (a.k.a. prefabs) first.  If you try to merge a scene with prefabs containing version control markdown, Unity will spam the log with warnings, and the merge grinds to a halt.  In version 1.6 and above, UniMerge will abort the merge and warn you about this problem.
 
 ## Config Window
 Generally speaking, you shouldn’t have to touch this window.  Everything here has to do with loading the custom skin for the colored backgrounds.  The text fields set name/path values that are used to load the skin and reference the custom styles that define the background colors.  There are 8 texture fields below these to override the default colors.

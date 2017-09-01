@@ -150,7 +150,7 @@ Integrating this tool into other VCS solutions should be very straightforward.  
 
 Anyways, that should be all.  Happy Merging!
 
-I can't include a zip file in the AssetStore package, so here's a download link: [[File:Git_scripts.zip]]
+I've included the integration scripts in this repo: [merge-unity.vbs](https://github.com/DefectiveStudios/UniMerge-Docs/blob/master/merge-unity.vbs) [merge-unity.js (deprecated)](https://github.com/DefectiveStudios/UniMerge-Docs/blob/master/merge-unity.js) [merge-unity.sh](https://github.com/DefectiveStudios/UniMerge-Docs/blob/master/merge-unity.sh)
 
 ## Tests
 The following tests will indicate whether any code changes have created issues in the tool.  For all merge tests, I’m going to assume mine -> theirs for the sake of semantics.  They should obviously work the same way in both directions

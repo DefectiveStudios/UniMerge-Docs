@@ -42,7 +42,7 @@ End If
 If InStr(sMyDoc, ProjectBase) = 0 Then
 	Set FSObj = CreateObject("Scripting.FileSystemObject")
 	sourceParts = Split(sMyDoc, "\")
-	destinationFile = ProjectBase & "\Assets\" & sourceParts(UBound(sourceParts)) & ".MINE"
+	destinationFile = ProjectBase & "\Assets\" & "MINE-" & sourceParts(UBound(sourceParts))
 	If FSObj.FileExists(sMyDoc) Then
 		If FSObj.FileExists(destinationFile) Then
 			'WScript.Echo("Cannot copy " + sMyDoc + " to " + destinationFile + " because the destination file exists")
@@ -57,7 +57,7 @@ End If
 If InStr(sTheirDoc, ProjectBase) = 0 Then
 	Set FSObj = CreateObject("Scripting.FileSystemObject")
 	sourceParts = Split(sTheirDoc, "\")
-	destinationFile = ProjectBase & "\Assets\" & sourceParts(UBound(sourceParts)) & ".THEIRS"
+	destinationFile = ProjectBase & "\Assets\" & "THEIRS-" & sourceParts(UBound(sourceParts))
 	If FSObj.FileExists(sTheirDoc) Then
 		If FSObj.FileExists(destinationFile) Then
 			'WScript.Echo("Cannot copy " + sTheirDoc + " to " + destinationFile + " because the destination file exists")

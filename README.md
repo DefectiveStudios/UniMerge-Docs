@@ -41,7 +41,7 @@ So what’s going on here?? I’ll break it down:
     * These arrows copy data between properties.  Only the value at this row is copied.
     * Sometimes, when one side is missing, you’ll get an X on the side that has the object.  This will delete that object (or component), thus making that row the same by eliminating it.
     * Sometimes you won’t see buttons. This is because the opposite object is missing entirely (not just missing that component).  You will also get this for any properties of a missing component. You need to copy the component over to get those properties--you can’t copy them into nothing.
-7. **Show/Hide**: The column on the right has two buttons that affect the entire row (not just one object). To differentiate between children and components, components are shown/hidden by a button instead of the foldout. There is a gap after the components to show you where they end and the children begin.
+7. **Show/Hide**: The column on the right has two buttons that affect the entire row (not just one object). To differentiate between children and components, components are shown/hidden by a button instead of the foldout. There is a separator after each row which is usually the same color as the row. On GameObject rows, the separator can be green while the row is red. This signifies that attributes and components are the same, but there are differences in child GameObjects.
 8. **Mismatched row**: If an object or component doesn't have a spouse (matching object on the other side), you will get an _X_ button on the side where it exists.  This button will destroy the object or component, thus making that row "equal" by getting rid of it.  You will not get copy buttons when showing components of a mismatched object.  You must first copy the object over to copy the components.  Note that you'll see empty space on the side without the object.
 
 ## Pro Tips
@@ -135,11 +135,11 @@ Just like with TortoiseGit, you want to have Plastic run the merge-unity.js scri
 Make sure you swap out D:\Documents\CosmoKnots\CosmoKnots\ with the path to your Unity project folder.  Note that the script no longer uses relative paths, so you can put it wherever you want.  You do, however, now have to go change the ProjectBase value to the path of your project folder.
 
 ### SourceTree
-Atlassain SourceTree is becoming a popular git frontend for both OS X and Windows.  To configure SourceTree to use UniMerge as a diff tool, you can simply switch the diff and merge tool to "Other", and specify 
+Atlassain SourceTree is becoming a popular git frontend for both OS X and Windows.  To configure SourceTree to use UniMerge as a diff tool, you can simply switch the diff and merge tool to "Other", and specify
 ```
 wscript.exe "D:\Documents\CosmoKnots\CosmoKnots\merge-unity.vbs"
 ```
-as the command, and 
+as the command, and
 ```
 $LOCAL $REMOTE
 ```

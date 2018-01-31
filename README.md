@@ -59,6 +59,8 @@ Click on a row or press the up/down arrow to select rows. The selected row will 
 * Alt + Left/Right to apply changes to the left/right (if possible)
 * Ctrl + H to toggle (show/Hide) the components of the selected row if it is a gameobject
 
+When skipping rows with alt + up/down, you will notice that the cursor will jump over expanded components and properties of objects that do not have a "spouse" in the opposite column. This is because all of these child rows are guaranteed to be different, and skipping to the next one is not providing useful information.
+
 Note: By default, on OS X, Ctrl + Left/Right are bound to Mission Control previous/next desktop. To work around this, either disable those shortcut keys in System Preferences > Keyboard > Shortcuts, or simply hold shift + ctrl which will block OS X from using the shortcut, and work the same as ctrl in UniMerge.
 
 ## Pro Tips
@@ -85,7 +87,7 @@ You should be back where you started, with a merged scene :)
 Note that you need to merge dependencies (a.k.a. prefabs) first.  If you try to merge a scene with prefabs containing version control markdown, Unity will spam the log with warnings, and the merge grinds to a halt.  In version 1.6 and above, UniMerge will abort the merge and warn you about this problem.
 
 ## Config Window
-Generally speaking, you shouldn’t have to touch this window.  Everything here has to do with loading the custom skin for the colored backgrounds.  The text fields set name/path values that are used to load the skin and reference the custom styles that define the background colors.  There are 8 texture fields below these to override the default colors.
+Generally speaking, you shouldn’t have to touch this window.  At the top of the window is a slider for controlling the UI responsiveness while UniMerge is performing long operations.  The value it is controlling is the number of milliseconds the UniMerge window will wait until yielding control back to Unity. Higher values result in faster refreshes, but less responsive Unity UI.  Everything here has to do with loading the custom skin for the colored backgrounds.  The text fields set name/path values that are used to load the skin and reference the custom styles that define the background colors.  There are 9 texture fields below these to override the default colors.
 
 If you are red/green colorblind, just go ahead and drop some alternate colors into these textures.  You can either create a new set of 8 images, or edit the images themselves directly. If anyone comes up with some good alternate color schemes, I’d be happy to include them and a drop-down to switch between pre-made schemes.
 
@@ -172,7 +174,7 @@ I've included the integration scripts in this repo: [merge-unity.vbs](https://gi
 
 ## Tests
 The following tests will indicate whether any code changes have created issues in the tool.  For all merge tests, I’m going to assume mine -> theirs for the sake of semantics.  They should obviously work the same way in both directions
-*Merge root object
+* Merge root object
     * Should destroy "theirs" object and duplicate "mine." Check that there are no errors
 * Merge sub-object with no spouse
     * Should duplicate "mine" and make it a child of the object in "theirs" that corresponds to the first object’s parent.  If "theirs" has no such parent, a LogWarning will fire explaining why the merge can’t be done.  Additionally, if any GameObjects or Components in the first object’s tree are referenced by any object within "mine," the corresponding references should be set in "theirs".  If log is enabled it should print out all of the references that were set.
@@ -195,14 +197,13 @@ The following tests will indicate whether any code changes have created issues i
 * Git integration
     * This is a little tough to test.  Git should try to open Unity if it isn’t running whenever a scene or prefab is merged, and/or when you try to resolve a conflicted merge.  In some cases, the git integration doesn’t work because it doesn’t create copies of the scene to be opened in Unity
 If Unity is already open when the merge happens, and you have the SceneMerge window up, it will listen for a certain file that the bridge script will create and open the scenes or prefabs automatically.
+* Integratio tests
+    * I've added some automated tests which open the ObjectMerge and SceneMerge windows and do a simple merge on the demo data. I would like to flesh these out, but they cover most of the breakages I've seen, which happen in the window startup and initial refresh.
 
 ## Known Issues
-* Actions will not update an object’s grandparents’ conflict state.  You will have to manually hit refresh.  This is not done automatically to avoid collapsing the children.
-* Clicking a foldout label won’t toggle it.  This is Unity’s fault.
 * The license is a little sketchy.  The project isn’t strict open-source but I want to allow people to modify the code and share their modifications. There must be a license for this out there...
-* Sometimes the alternating-darkness for the background doesn’t quite alternate right.... not sure what’s up with that.
-* You can't use this to recover missing references due to asset ID mismatches.  In other words, if you bring in the original scene and it has missing references (sometimes this even happens with references within the scene), the tool won't help you find them.  This is a broader issue with Unity's asset management which is hard to trace and ultimately probably impossible to solve without using Asset Server to centrally assign asset IDs.  Any advice on how to handle this better is welcome.
-* As of 4.6, non-alphanumeric sorting of the hierarchy means that if you change order, the merger won't be able to match objects
+* You can't use this to recover missing references due to guid mismatches.  In other words, if you bring in the original scene and it has missing references (sometimes this even happens with references within the scene), the tool won't help you find them.  This is a broader issue with Unity's asset management which is hard to trace and ultimately probably impossible to solve without using a central authority for guids.  Any advice on how to handle this better is welcome.
+* We only match objects by name, and sort alphanumerically to account for change in order. Thus, you can't merge changes in sibling order
 
 ## Roadmap
 What’s next?
@@ -210,8 +211,6 @@ What’s next?
     * A helpful user has contributed an OS X git bridge. Still waiting on demand for systems like Perforce or Mercurial.  Note: for systems like SVN that don't handle merging, there's nothing to be done.  The tool works as well as possible as-is!
 * Better filtering
     * The current UI is a little awkward, and you can only filter by component type.  I’d also like to filter out property names and/or object names
-* nGUI support
-    * Currently, due to the nature of how nGUI generates meshes for its objects, nGUI components will always show up conflicted.  The current workaround is to use the component type filters to ignore the generated data, but a better workaround is possible.
 * Merging lists of objects
     * Currently, for the purposes of merging two parallel lists of children, only object names are compared.  For example, we have one object with Child 1, Child 2, and Child 3, and another with Child 2, Child 3, and Child 4.  As it stands, we’ll see a list with 4 items.  Since there is no child named Child 1 it will be alone on the left, and likewise Child 4 will be alone on the right.  It might be appropriate to merge the list differently, and we’d be able to make a better decision with information about the object’s history.  Anyway this is an area for improvement, but I have no idea what would be better.
 * "Smarter" merging/merge options
@@ -219,9 +218,10 @@ What’s next?
 * Skinning/GUI
     * The GUI is rather simple as-is but is still pretty busy.  I’m constantly thinking about ways to improve it.
 * Refresh behavior
-    * When changes are made, I avoid refreshing from the root for two reasons: firstly, for very complicated objects, refresh can take a few seconds.  Secondly, the current refresh function will re-create the holder objects that store whether a row is collapsed or open.  If I refreshed the whole tree on every action, you would have to keep re-opening the tree to where you were.  Likewise, whenever changes are made in the scene, you have to manually refresh the row in the merge window.  Eventually, I’d like to be able to do away with the refresh button altogether, and auto-refresh whenever is needed.
+    * When changes are made, the entire tree is refreshed. This takes longer the first time because we create a bunch of objects, and actions must bubble all the way up to the root because otherwise parents wouldn't know about conflict resolutions in their children. However, siblings don't need to be refreshed. This can be accounted for with a little bit of added complexity to the Refresh method.
 * Documentation
     * I hope to add some more screencasts and better screenshots of tool in action.  The [demo screencast](https://www.youtube.com/watch?v=SWmca1Ozntw) is a good start, though!
 * Code cleanup
     * Refresh and FindAndSetRefs are O(n^2).  I might be able to make this faster
-    * I probably could do one last pass with the interest of supporting a three-way merge
+* Three way merge
+    * I'm still scratching my head on the UI for this one, but I do plan to tackle it. The standard 3-over-1 layout seems like a terrible idea for this purpose, but it is clear that seeing the base/local/remote versions at least is necessary.

@@ -44,6 +44,23 @@ So what’s going on here?? I’ll break it down:
 7. **Show/Hide**: The column on the right has two buttons that affect the entire row (not just one object). To differentiate between children and components, components are shown/hidden by a button instead of the foldout. There is a separator after each row which is usually the same color as the row. On GameObject rows, the separator can be green while the row is red. This signifies that attributes and components are the same, but there are differences in child GameObjects.
 8. **Mismatched row**: If an object or component doesn't have a spouse (matching object on the other side), you will get an _X_ button on the side where it exists.  This button will destroy the object or component, thus making that row "equal" by getting rid of it.  You will not get copy buttons when showing components of a mismatched object.  You must first copy the object over to copy the components.  Note that you'll see empty space on the side without the object.
 
+## Selection Cursor
+Click on a row or press the up/down arrow to select rows. The selected row will be slightly darker than the other rows. You can use the following keyboard shortcuts to get around:
+* Up/Down arrows to move to the previous/next row
+* Shift + Up to collapse rows as you ascend into their parent
+* Shift + Down to expand rows that have children
+* Left/Right arrows to expand/collapse the selected row (if the row is a GameObject with no children, this will expand/collapse the components)
+* Left on collapsed row to select its parent
+* Right on an expanded row to select its first child with children
+* Shift + Left on an collapsed GameObject row to collapse its attributes and components and select the parent
+* Shift + Right on an expanded GameObject row to enter its attributes and components and select the next row with children
+* Ctrl + Left/Right arrows to expand/collapse the selected row and its children recursively
+* Alt + Up/Down to skip to the previous/next difference
+* Alt + Left/Right to apply changes to the left/right (if possible)
+* Ctrl + H to toggle (show/Hide) the components of the selected row if it is a gameobject
+
+Note: By default, on OS X, Ctrl + Left/Right are bound to Mission Control previous/next desktop. To work around this, either disable those shortcut keys in System Preferences > Keyboard > Shortcuts, or simply hold shift + ctrl which will block OS X from using the shortcut, and work the same as ctrl in UniMerge.
+
 ## Pro Tips
 * You can pull up any scene or prefab from any state by using TortoiseGit’s Repo Browser.  Open the log, find the commit you want, right click it and choose Repo Browser.  Then find the file you want, and Save as... to the assets folder. Then merge! Good Luck!
 * The conflict check (red/green background) compares all components, fields, and child objects, but the part of the code that checks if children are "the same" only compares names.  The difference here is that in cases where an object on the left is not matched on the right, only names are considered.  There is no "history" to tell us whether two copies of a object used to be the same thing, so this is the best we can come up with so far.  Bear in mind that re-naming sub-objects will cause them to be treated as "unmatched" in this way.

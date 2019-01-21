@@ -8,7 +8,7 @@ UniMerge can be [purchased](http://u3d.as/4XU) from the Unity Asset Store for on
 ## Intro
 _At long last... a Unity GameObject merge/diff tool!_
 
-Every team working with Unity knows the pain: you and another teammate both make major changes to a scene, or to the same prefab, and when it comes time to merge your changes into the game, it's "mine" or "theirs".  You can save your changes out as prefabs and bring them in manually, or or keep one scene and have to duplicate the other scene's work, or simply fight to the death to decide whose work stays. Bah!
+Every team working with Unity knows the pain: you and another teammate both make major changes to a scene, or to the same prefab, and when it comes time to merge your changes into the game, it's "mine" or "theirs".  You can save your changes out as prefabs and bring them in manually, or keep one scene and have to duplicate the other scene's work, or simply fight to the death to decide whose work stays. Bah!
 
 But no longer!  We're pleased to introduce to you: UniMerge, a handy tool for merging objects, prefabs, and whole scenes, with color-coded diffs directly in the Unity editor.  This way you can manipulate your objects with the interface you're already comfortable with, and you can see the results in the scene instantly!  The tool comes with some scripts and instructions to integrate with TortoiseGit and Git on Windows (more VCS and OS support soon!).  The workflow is also compatible with Unity's Asset Server.
 
@@ -18,7 +18,7 @@ Merging Unity assets used to be impossible when scenes were binary-only. So, we 
 
 But, why exactly can't we merge via text?  There's a lot of extraneous information which is useful to Unity but really doesn't matter to us, and it seems that Unity does not maintain consistent ordering when saving scenes and prefabs (the real kicker).  When you go back to the merged scene, you can end up with duplicated and/or mangled objects in the scene.  
 
-Now, we try to keep Git out of the equation and merge everything within Unity.  As long as you have a copy of each of the the scenes or prefabs in question, you can get your changes back.  As long as you can see the object in Unity, you can actually make use of those changes and merge 'em in!
+Now, we try to keep Git out of the equation and merge everything within Unity.  As long as you have a copy of each of the scenes or prefabs in question, you can get your changes back.  As long as you can see the object in Unity, you can actually make use of those changes and merge 'em in!
 
 Anyway enough about the tool, here's how to use it!  Let's start with a very basic case.  We have two versions of some object and want to see if/how they are different.  Our job is to make them the saaaaame.
 
@@ -30,7 +30,7 @@ That’s it!  Now you’ll see the interface in all its glory. If your objects a
 
 So what’s going on here?? I’ll break it down:
 <img src="https://github.com/DefectiveStudios/UniMerge-Docs/raw/master/breakdown.png" width=400 align=right />
-1. **Options**: _Deep Copy_ will set references to objects you just copied in the object it was copied to.  Disable this if you don't want this behavior or if copying a large, complex object crashes Unity (sorry about that).  _Log_ will enable logging on certain operations.  _Compare Attributes_ will enable the inclusion of GameObject attributes (name, layer, tag, etc.) in the comparison algorithm.  _Expand Differences_ will open up any objects (and their parents) that have differences.  _Refresh_ will refresh the whole tree, comparing every object and attribute, resetting the row color.  Use this if anything seems fish or out of date, or if you make changes to the objects outside of the ObjectMerge window which can't be tracked.  _Row Height_ is pretty self-explanitory. Pick from one or three levels of padding between rows.
+1. **Options**: _Deep Copy_ will set references to objects you just copied in the object it was copied to.  Disable this if you don't want this behavior or if copying a large, complex object crashes Unity (sorry about that).  _Log_ will enable logging on certain operations.  _Compare Attributes_ will enable the inclusion of GameObject attributes (name, layer, tag, etc.) in the comparison algorithm.  _Expand Differences_ will open up any objects (and their parents) that have differences.  _Refresh_ will refresh the whole tree, comparing every object and attribute, resetting the row color.  Use this if anything seems fish or out of date, or if you make changes to the objects outside of the ObjectMerge window which can't be tracked.  _Row Height_ is pretty self-explanatory. Pick from one or three levels of padding between rows.
 2. **Filters**: The drop-downs on the right will list every component type available in your project.  Use them like you use the layer mask GUI on lights and cameras to include/exclude component types from the comparison.  Those components will still show up red if there are differences, but they won't be checked in their parent object.  All three lists are checked simultaneously, and have to be broken up because Unity's mask GUI can only handle 31 items at a time.
 3. **Root object slots**:  Drop your root objects here.  Once you fill both, the merge interface will magically appear!  Use the clear button if you want to get rid of the interface (for some reason).  The object picker breaks because we’re using a GUISkin for the window.  The _PrefabInstance_ you see below the object field tells you the prefab state of the object (this one happens to have no prefab).
 4. **Foldouts**: GameObjects, Components, and some properties will be listed with a little arrow next to them.  As with everywhere else in the Unity interface, this arrow expands the contents below.  Note that all foldouts here are tied to both sides at once.  This is intentional in order to keep the layout sane and make it so that blank space means the object is actually missing.  Holding alt while clicking on a GameObject foldout will expand/collapse all of its children with it.
@@ -197,13 +197,17 @@ The following tests will indicate whether any code changes have created issues i
 * Git integration
     * This is a little tough to test.  Git should try to open Unity if it isn’t running whenever a scene or prefab is merged, and/or when you try to resolve a conflicted merge.  In some cases, the git integration doesn’t work because it doesn’t create copies of the scene to be opened in Unity
 If Unity is already open when the merge happens, and you have the SceneMerge window up, it will listen for a certain file that the bridge script will create and open the scenes or prefabs automatically.
-* Integratio tests
+* Integration tests
     * I've added some automated tests which open the ObjectMerge and SceneMerge windows and do a simple merge on the demo data. I would like to flesh these out, but they cover most of the breakages I've seen, which happen in the window startup and initial refresh.
 
 ## Known Issues
 * The license is a little sketchy.  The project isn’t strict open-source but I want to allow people to modify the code and share their modifications. There must be a license for this out there...
 * You can't use this to recover missing references due to guid mismatches.  In other words, if you bring in the original scene and it has missing references (sometimes this even happens with references within the scene), the tool won't help you find them.  This is a broader issue with Unity's asset management which is hard to trace and ultimately probably impossible to solve without using a central authority for guids.  Any advice on how to handle this better is welcome.
 * We only match objects by name, and sort alphanumerically to account for change in order. Thus, you can't merge changes in sibling order
+
+### A Note on Nested Prefabs
+Prefabs have always been a tricky situation for UniMerge. For one thing, you always have to resolve prefab merge conflicts first, because you won't even be able to load them with diff markers in the file. As such, you have always had to resolve prefab conflicts in isolation, which means that some scene references or overrides can be lost in the process. Furthermore, preserving prefab links in a "whole object" merge operation has thus far been a bit of a hack. The process worked by deleting the target object, cloning the source, and putting the new object in the place where the target once was, and linking the cloned object to the source object's prefab. Deleting sub-objects via the ObjectMerge window would break prefab links as would normally happen when doing so in the hierarchy.
+The nested prefabs workflow introduced in 2018.3 forces you to make "breaking" changes in the prefab isolation mode. As such, you simply _cannot_ delete objects that are part of a prefab outside of isolation mode. That throws a wrench in the UniMerge workflow, in that we have always been able to edit two prefabs side-by-side in a single scene. I think there may be ways to work around this in the future, but for now the solution is to simply interrupt the UniMerge operation when we need to delete child objects within prefabs. Unimerge displays a replica of the normal Unity dialog informing you that you either need to unpack your prefab (formerly "break prefab link") or enter isolation mode. Opening the prefab can be helpful to make a simple tweak, but if you want to properly diff two prefabs, just unpack them in the scene, merge your changes, and save that object back to the prefab you wish to keep.
 
 ## Roadmap
 What’s next?
@@ -222,6 +226,6 @@ What’s next?
 * Documentation
     * I hope to add some more screencasts and better screenshots of tool in action.  The [demo screencast](https://www.youtube.com/watch?v=SWmca1Ozntw) is a good start, though!
 * Code cleanup
-    * Refresh and FindAndSetRefs are O(n^2).  I might be able to make this faster
+    * Refresh always traverses the entire tree, and FindAndSetRefs is O(n^2).  I might be able to make these operations faster
 * Three way merge
     * I'm still scratching my head on the UI for this one, but I do plan to tackle it. The standard 3-over-1 layout seems like a terrible idea for this purpose, but it is clear that seeing the base/local/remote versions at least is necessary.

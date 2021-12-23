@@ -10,7 +10,7 @@ _At long last... a Unity GameObject merge/diff tool!_
 
 Every team working with Unity knows the pain: you and another teammate both make major changes to a scene, or to the same prefab, and when it comes time to merge your changes into the game, it's "mine" or "theirs".  You can save your changes out as prefabs and bring them in manually, or keep one scene and have to duplicate the other scene's work, or simply fight to the death to decide whose work stays. Bah!
 
-But no longer!  We're pleased to introduce to you: UniMerge, a handy tool for merging objects, prefabs, and whole scenes, with color-coded diffs directly in the Unity editor.  This way you can manipulate your objects with the interface you're already comfortable with, and you can see the results in the scene instantly!  The tool comes with some scripts and instructions to integrate with TortoiseGit and Git on Windows (more VCS and OS support soon!).  The workflow is also compatible with Unity's Asset Server.
+But no longer!  We're pleased to introduce to you: UniMerge, a handy tool for merging objects, prefabs, and whole scenes, with color-coded diffs directly in the Unity editor.  This way you can manipulate your objects with the interface you're already comfortable with, and you can see the results in the scene instantly!  The tool comes with some scripts and instructions to integrate with TortoiseGit and Git on Windows (more VCS and OS support soon!).
 
 _But why should this amazing tool exist?_
 
@@ -23,29 +23,35 @@ Now, we try to keep Git out of the equation and merge everything within Unity.  
 Anyway enough about the tool, here's how to use it!  Let's start with a very basic case.  We have two versions of some object and want to see if/how they are different.  Our job is to make them the saaaaame.
 
 ## How To Merge Objects
-1. Open the ObjectMerge Window (Window -> Object Merge -> Object Merge)
-2. Drag your objects from the scene to "mine" and "theirs" at the top of the window
+1. Open the ObjectMerge Window (Window -> UniMerge -> Object Merge)
+2. Drag your objects from the scene to the object fields marked "Mine" and "Theirs" at the top of the window
 
 That’s it!  Now you’ll see the interface in all its glory. If your objects are simple, there’s not much to inspect. If you have a more complicated object, you might get something like this:
 
-So what’s going on here?? I’ll break it down:
+So what’s going on here?? Let's break it down:
 <img src="https://github.com/DefectiveStudios/UniMerge-Docs/raw/master/breakdown.png" width=400 align=right />
-1. **Options**: _Deep Copy_ will set references to objects you just copied in the object it was copied to.  Disable this if you don't want this behavior or if copying a large, complex object crashes Unity (sorry about that).  _Log_ will enable logging on certain operations.  _Compare Attributes_ will enable the inclusion of GameObject attributes (name, layer, tag, etc.) in the comparison algorithm.  _Expand Differences_ will open up any objects (and their parents) that have differences.  _Refresh_ will refresh the whole tree, comparing every object and attribute, resetting the row color.  Use this if anything seems fish or out of date, or if you make changes to the objects outside of the ObjectMerge window which can't be tracked.  _Row Height_ is pretty self-explanatory. Pick from one or three levels of padding between rows.
-2. **Filters**: The drop-downs on the right will list every component type available in your project.  Use them like you use the layer mask GUI on lights and cameras to include/exclude component types from the comparison.  Those components will still show up red if there are differences, but they won't be checked in their parent object.  All three lists are checked simultaneously, and have to be broken up because Unity's mask GUI can only handle 31 items at a time.
-3. **Root object slots**:  Drop your root objects here.  Once you fill both, the merge interface will magically appear!  Use the clear button if you want to get rid of the interface (for some reason).  The object picker breaks because we’re using a GUISkin for the window.  The _PrefabInstance_ you see below the object field tells you the prefab state of the object (this one happens to have no prefab).
+1. **Options**:
+  - _Deep Copy_ will set references to objects you just copied in the object it was copied to.  Disable this if you don't want this behavior or if copying a large, complex object crashes Unity (sorry about that).
+  - _Log_ will enable logging on certain operations.
+  - _Compare Attributes_ will enable the inclusion of GameObject attributes (name, layer, tag, etc.) in the comparison algorithm.
+  - _Expand Differences_ will open up any objects (and their parents) that have differences.
+  - _Refresh_ will refresh the whole tree, comparing every object and attribute, resetting the row color. Operations done in the Object Merge window will automatically trigger a refresh, but we give you a button just in case. Use this if anything seems sus or out of date, or if you make changes to the objects outside of the ObjectMerge window.
+  - _Row Height_ is pretty self-explanatory. Pick from one of three levels of padding between rows.
+2. **Filters**: On the right, you can search for and add components which will be ignored in the comparison check. The rows for these components will still show up red if there are differences, but they won't be checked in their parent object, meaning that if all other components are green, the parent object will be green. This can be useful if properties are set to unique values via, like meshes that are generated on-demand for custom UI frameworks. Enter all or part of the component name (e.g. `MeshFilter`) you would like to filter. The search is case sensitive, and searches by full type name (including namespace). All matching types are sorted by full type name length (shortest first) after eliminating any types that are already filtered. If you press Return after typing a search query, one type will be added and the field will be cleared. If you click the `+` button to the right of the search field, the query string remains in the field and multiple types can be added quickly in succcession. For example, if you search for `mesh` and keep clicking `+` you will add all types with `mesh` in their name. You can remove types from the filter list by clicking the corresponding label under the search field. The tooltip for each type name includes the full name in case your project includes types with the same name in different namespaces.
+3. **Root object slots**:  Drop your root objects here.  Once you fill both, the merge interface will magically appear!
 4. **Foldouts**: GameObjects, Components, and some properties will be listed with a little arrow next to them.  As with everywhere else in the Unity interface, this arrow expands the contents below.  Note that all foldouts here are tied to both sides at once.  This is intentional in order to keep the layout sane and make it so that blank space means the object is actually missing.  Holding alt while clicking on a GameObject foldout will expand/collapse all of its children with it.
-5. **Ping Button**: The Ping button will ping the object in the hierarchy, in case you need to do something with it in the scene.
-6. **Mid buttons**: These have a lot of different states.  Generally speaking, the one on the left pertains to an object on the left, and the right to the right.  There’s one situation where a button exists but doesn't work - this is temporary.  If you try to copy an object to an empty space which is also empty in the parent, you’ll get a warning telling you to copy the parent over.  Moving on...
-    * This set of buttons applies to a GameObject.  Soon I’ll be differentiating the rows visually, but either way, it is important to understand that these arrows do specific things. When copying between two existing GameObjects, this copies all components and properties in the direction of the arrow.  If you click the right button, the left side will override the right, and vice versa.
-    * These arrows copy data between components.  All properties are copied.
-    * These arrows copy data between properties.  Only the value at this row is copied.
+5. **Focus and Ping Buttons**: The Ping (`P`) button will ping the object in the hierarchy, in case you need to do something with it in the scene. The Focus (`F`) button will focus the scene camera on an object, and ping it as well.
+6. **Middle buttons**: These have a lot of different states.  Generally speaking, the one on the left pertains to an object on the left, and the right to the right.  If you try to copy an object to an empty space which is also empty in the parent, you’ll get a warning telling you to copy the parent over.
+    * When using the left/right buttons between two existing GameObjects, this copies all components and properties in the direction of the arrow.  If you click the right button, the left side will override the right, and vice versa.
+    * The left/right buttons can also be used on Components.  All properties are copied.
+    * The left/right buttons can also be used on individual properties.  Only the value at this row (or child rows if the property has children) is copied.
     * Sometimes, when one side is missing, you’ll get an X on the side that has the object.  This will delete that object (or component), thus making that row the same by eliminating it.
     * Sometimes you won’t see buttons. This is because the opposite object is missing entirely (not just missing that component).  You will also get this for any properties of a missing component. You need to copy the component over to get those properties--you can’t copy them into nothing.
-7. **Show/Hide**: The column on the right has two buttons that affect the entire row (not just one object). To differentiate between children and components, components are shown/hidden by a button instead of the foldout. There is a separator after each row which is usually the same color as the row. On GameObject rows, the separator can be green while the row is red. This signifies that attributes and components are the same, but there are differences in child GameObjects.
+7. **Show/Hide components**: The column on the right has a button (`+`) that affect the entire row (not just one object). To differentiate between children and components, components are shown/hidden by a button instead of the foldout. There is a separator after each row which is usually the same color as the row. On GameObject rows, the separator can be green while the row is red. This signifies that attributes and components are the same, but there are differences in child GameObjects.
 8. **Mismatched row**: If an object or component doesn't have a spouse (matching object on the other side), you will get an _X_ button on the side where it exists.  This button will destroy the object or component, thus making that row "equal" by getting rid of it.  You will not get copy buttons when showing components of a mismatched object.  You must first copy the object over to copy the components.  Note that you'll see empty space on the side without the object.
 
 ## Selection Cursor
-Click on a row or press the up/down arrow to select rows. The selected row will be slightly darker than the other rows. You can use the following keyboard shortcuts to get around:
+Click on a row or press the up/down arrow keys to select rows. The selected row will be slightly darker than the other rows. You can use the following keyboard shortcuts to get around:
 * Up/Down arrows to move to the previous/next row
 * Shift + Up to collapse rows as you ascend into their parent
 * Shift + Down to expand rows that have children
@@ -65,17 +71,17 @@ Note: By default, on OS X, Ctrl + Left/Right are bound to Mission Control previo
 
 ## Pro Tips
 * You can pull up any scene or prefab from any state by using TortoiseGit’s Repo Browser.  Open the log, find the commit you want, right click it and choose Repo Browser.  Then find the file you want, and Save as... to the assets folder. Then merge! Good Luck!
-* The conflict check (red/green background) compares all components, fields, and child objects, but the part of the code that checks if children are "the same" only compares names.  The difference here is that in cases where an object on the left is not matched on the right, only names are considered.  There is no "history" to tell us whether two copies of a object used to be the same thing, so this is the best we can come up with so far.  Bear in mind that re-naming sub-objects will cause them to be treated as "unmatched" in this way.
-* Don’t forget to use the normal Unity editor!  You can take advantage of multi-edit and other editor scripts you’ve devised and the rest, once you’ve found the differences with this window.  Sometimes it’s much easier to do things conventionally :)
+* The conflict check (red/green background) compares all components, fields, and child objects, but the part of the code that checks if child GameObjects are "the same" only compares names.  The difference here is that in cases where an object on the left is not matched on the right, only names are considered.  There is no "history" to tell us whether two copies of a object used to be the same thing, so this is the best we can come up with so far.  Bear in mind that re-naming sub-objects will cause them to be treated as "unmatched" in this way.
+* Don’t forget to use the normal Unity editor!  You can take advantage of multi-edit and other editor automation scripts you’ve devised, once you’ve found the differences using UniMerge.  Sometimes it’s much easier to do things conventionally :)
 * Make use of the alt-click and Expand Differences functionality.  Don't sit there folding out each object one-by-one when you can expand/collapse all by holding alt, and selectively expand to differences with the Expand Differences button.
-* Be careful using the tool on large, complex scenes (more than a few thousand objects).  The tool will process in the background, but can still take a long time (over a minute) to refresh the comparison state of each object.  Break your scene up into chunks.  If you do decide to take the plunge and work on the whole thing at once, the comparison will run faster if you collapse the GUI down to showing just the top row.
-* In Unity 5.3 and above, UniMerge makes use of the Unity SceneManager class.  Make sure that you don't have your own class called SceneManager, as it conflicts with the Unity class and will call compile errors when importing UniMerge.
+* Be careful using the tool on large, complex scenes (more than a few thousand objects).  The tool will process in the background, but can still take a long time (over a minute) to refresh the comparison state of each object.  Break your scene up into chunks.  If you do decide to take the plunge and work on the whole thing at once, the comparison will run faster if you collapse the GUI down to showing just the top row. Turing off Deep Copy can also help. Also, feel free to cancel the refresh if you know you're going to be making a bunch of changes in a row.
+* In Unity 5.3 and above, UniMerge makes use of the Unity SceneManager class.  Make sure that you don't have your own class called SceneManager in the global namespace (really, just don't use the global namespace), as it conflicts with the Unity class and will cause compile errors when importing UniMerge.
 
 ## Scene Merging
 
 Scene merging is pretty simple, too.  It also has a very similar workflow!  Simply do the following:
 
-1. Open the SceneMerge Window (Window -> Object Merge ->Scene Merge)
+1. Open the SceneMerge Window (Window -> UniMerge -> Scene Merge)
 2. Drag in your scenes
 3. Press the Merge button
 4. Merge your objects in the ObjectMerge window
@@ -87,7 +93,7 @@ You should be back where you started, with a merged scene :)
 Note that you need to merge dependencies (a.k.a. prefabs) first.  If you try to merge a scene with prefabs containing version control markdown, Unity will spam the log with warnings, and the merge grinds to a halt.  In version 1.6 and above, UniMerge will abort the merge and warn you about this problem.
 
 ## Config Window
-Generally speaking, you shouldn’t have to touch this window.  At the top of the window is a slider for controlling the UI responsiveness while UniMerge is performing long operations.  The value it is controlling is the number of milliseconds the UniMerge window will wait until yielding control back to Unity. Higher values result in faster refreshes, but less responsive Unity UI.  Everything here has to do with loading the custom skin for the colored backgrounds.  The text fields set name/path values that are used to load the skin and reference the custom styles that define the background colors.  There are 9 texture fields below these to override the default colors.
+Generally speaking, you shouldn’t have to touch this window.  At the top of the window is a slider for controlling the UI responsiveness while UniMerge is performing long operations.  The value it is controlling is the number of milliseconds the UniMerge window will wait until yielding control back to Unity. Higher values result in faster refreshes, but less responsive Unity UI.  Everything else here has to do with loading the custom skin for the colored backgrounds.  The text fields set name/path values that are used to load the skin and reference the custom styles that define the background colors.  There are 9 texture fields below these to override the default colors.
 
 If you are red/green colorblind, just go ahead and drop some alternate colors into these textures.  You can either create a new set of 8 images, or edit the images themselves directly. If anyone comes up with some good alternate color schemes, I’d be happy to include them and a drop-down to switch between pre-made schemes.
 
@@ -132,11 +138,10 @@ External Program: wscript.exe "D:\Documents\CosmoKnots\CosmoKnots\merge-unity.vb
 Make sure you swap out D:\Documents\CosmoKnots\CosmoKnots\ with the path to your Unity project folder. Note that the script no longer uses relative paths, so you can put it wherever you want. You do, however, now have to go change the ProjectBase value to the path of your project folder.
 
 
-I obviously have to figure out a better way to point to that script path.  Either way, that path will be the path to a VBS file that is run by the Windows Scripting Host (should be on all versions that support Unity).  This script will check if Unity is running and, depending on the state, do one of two things.  It will either (If Unity isn’t running) boot Unity and trigger the scene merge, or it will drop a file called merges.txt into the Assets folder.  If you have the SceneMerge window open, it will listen for that file drop and trigger a merge as soon as it updates.
+I obviously have to figure out a better way to point to that script path.  Either way, that path will be the path to a VBS file that is run by the Windows Scripting Host (which should be available on all versions of Windows that support Unity).  This script will check if Unity is running and, depending on the state, do one of two things.  It will either (If Unity isn’t running) boot Unity and trigger the scene merge, or it will drop a file called merges.txt into the Assets folder.  If you have the SceneMerge window open, it will listen for that file drop and trigger a merge as soon as it updates.
 
 This seems to work only on resolving conflicts.  I’m not exactly sure how to make it do this every time a scene or prefab merge happens.  The script is called but points at three files which don't exist.
 Also, if you have unresolved conflicts in your ProjectSettings.asset file, Unity will assume a version mismatch and ask you to upgrade your project (don't do it!).  Not sure how to get around this.
-Also, it only works on Windows.  It won’t be too big a deal to get it working on Mac/Linux.
 
 Right now, the script doesn't clean up after itself since I don’t want it to be destructive while I work on it.  So you’ll have to delete the .REMOTE, .BASE, etc. files generated by Git in this process.
 
@@ -195,8 +200,7 @@ The following tests will indicate whether any code changes have created issues i
 * Merge Scenes
     * You shouldn’t be able to click Merge or the Unpack buttons at first.  Once you drop in two scenes (you can actually use the same scene twice if you’re just testing), Merge should become enabled.  Once you hit merge, the ObjectMerge window will open, and you’ll be able to click the Unpack buttons.  As soon as you delete mine or theirs (or open another scene), the corresponding button should ghost out.  Clicking Unpack should unpack one or the other object  and delete both container objects.
 * Git integration
-    * This is a little tough to test.  Git should try to open Unity if it isn’t running whenever a scene or prefab is merged, and/or when you try to resolve a conflicted merge.  In some cases, the git integration doesn’t work because it doesn’t create copies of the scene to be opened in Unity
-If Unity is already open when the merge happens, and you have the SceneMerge window up, it will listen for a certain file that the bridge script will create and open the scenes or prefabs automatically.
+    * This is a little tough to test.  Git should try to open Unity if it isn’t running whenever a scene or prefab is merged, and/or when you try to resolve a conflicted merge.  In some cases, the git integration doesn’t work because it doesn’t create copies of the scene to be opened in Unity. If Unity is already open when the merge happens, and you have the SceneMerge window up, it will listen for a certain file that the bridge script will create and open the scenes or prefabs automatically.
 * Integration tests
     * I've added some automated tests which open the ObjectMerge and SceneMerge windows and do a simple merge on the demo data. I would like to flesh these out, but they cover most of the breakages I've seen, which happen in the window startup and initial refresh.
 
@@ -214,7 +218,7 @@ What’s next?
 * VCS integration
     * A helpful user has contributed an OS X git bridge. Still waiting on demand for systems like Perforce or Mercurial.  Note: for systems like SVN that don't handle merging, there's nothing to be done.  The tool works as well as possible as-is!
 * Better filtering
-    * The current UI is a little awkward, and you can only filter by component type.  I’d also like to filter out property names and/or object names
+    * You can only filter by component type.  I’d also like to filter out property names and/or object names
 * Merging lists of objects
     * Currently, for the purposes of merging two parallel lists of children, only object names are compared.  For example, we have one object with Child 1, Child 2, and Child 3, and another with Child 2, Child 3, and Child 4.  As it stands, we’ll see a list with 4 items.  Since there is no child named Child 1 it will be alone on the left, and likewise Child 4 will be alone on the right.  It might be appropriate to merge the list differently, and we’d be able to make a better decision with information about the object’s history.  Anyway this is an area for improvement, but I have no idea what would be better.
 * "Smarter" merging/merge options
@@ -225,7 +229,7 @@ What’s next?
     * When changes are made, the entire tree is refreshed. This takes longer the first time because we create a bunch of objects, and actions must bubble all the way up to the root because otherwise parents wouldn't know about conflict resolutions in their children. However, siblings don't need to be refreshed. This can be accounted for with a little bit of added complexity to the Refresh method.
 * Documentation
     * I hope to add some more screencasts and better screenshots of tool in action.  The [demo screencast](https://www.youtube.com/watch?v=SWmca1Ozntw) is a good start, though!
-* Code cleanup
+* Optimization
     * Refresh always traverses the entire tree, and FindAndSetRefs is O(n^2).  I might be able to make these operations faster
 * Three way merge
     * I'm still scratching my head on the UI for this one, but I do plan to tackle it. The standard 3-over-1 layout seems like a terrible idea for this purpose, but it is clear that seeing the base/local/remote versions at least is necessary.
